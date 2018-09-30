@@ -1,0 +1,5 @@
+<launch>
+  <node name="camera_driver" pkg="usb_cam" type="usb_cam_node" args="_video_device:=/dev/video1 _pixel_format:=yuyv" />
+  <node name="ball_tracker" pkg="ball_tracker" type="ball_tracker.py" output="screen"/>
+  <node name="motor_control" pkg="ball_tracker" type="motor_control.py"  output="screen" />
+</launch>
