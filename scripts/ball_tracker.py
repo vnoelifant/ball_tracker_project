@@ -35,7 +35,7 @@ def callback(data):
         img_original = bridge.imgmsg_to_cv2(data, "bgr8")
     except CvBridgeError as e:
         #print("==[CAMERA MANAGER]==", e)
-        print("error")
+        print e
 
     #print(img_original)
 
@@ -65,19 +65,29 @@ def callback(data):
 
     # Bitwise-AND mask and original image
     res = cv2.bitwise_and(img_original,img_original, mask= mask)
-
+    
+     # find contours in the mask to detect object boundary and initialize the current (x, y) center of the ball
     contour = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
     center = None
-
+    
+    # only proceed if at least one contour was found
     if len(contour) > 0:
+        # find the largest contour in the mask, then use it to compute the minimum enclosing circle and centroid
+        # The centroid is the weighted average of all the pixels constiturting the shape
+        # Compute the largest contour 
         c = max(contour, key = cv2.contourArea)
+        # compute the minimum enclosing circle
         ((x,y),radius) = cv2.minEnclosingCircle(c)
+        # calculate moments used to compute the center of the image
         M = cv2.moments(c)
+        # only proceed if the radius meets a minimum size
         if radius > 10:
+            # calculate the center of the object (x, y coordinates)
             center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
             # else:
             #   center = (0,0)
             #print(center)
+            # draw the contour and center of the shape on the image
             res = cv2.circle(res,(int(center[0]),int(center[1])),int(radius),(0,255,0),2)
             img_original = cv2.circle(img_original,(int(center[0]),int(center[1])),int(radius),(0,255,0),2)
             #cv2.putText(img_original, "center", (cX - 20, cY - 20),
