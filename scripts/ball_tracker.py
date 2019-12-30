@@ -26,30 +26,14 @@ def callback(data):
     global img_original
     global mask
     global res
-    #global frame
-    #global resg
-
-    #rospy.loginfo(rospy.get_caller_id() + 'I heard %s', data.data)
-        # Convert Image message to CV image with blue-green-red color order (bgr8)
+   
     try:
         img_original = bridge.imgmsg_to_cv2(data, "bgr8")
     except CvBridgeError as e:
-        #print("==[CAMERA MANAGER]==", e)
         print e
 
-    #print(img_original)
-
-    #cap = cv2.VideoCapture(0)
-
-    #while(1):
-
-        # Take each frame
-       	#_, frame = cap.read()
-
-        # Convert BGR to HSV
+    # Convert BGR to HSV
     hsv = cv2.cvtColor(img_original, cv2.COLOR_BGR2HSV)
-    #imgray = cv2.cvtColor(img_original, cv2.COLOR_BGR2GRAY)
-
     # define range of blue color in HSV
     lower_blue = np.array([105,100,100])
     upper_blue = np.array([135,255,255])
@@ -58,10 +42,6 @@ def callback(data):
     mask = cv2.inRange(hsv, lower_blue, upper_blue)
     mask = cv2.erode(mask, None, iterations=2)
     mask = cv2.dilate(mask, None, iterations=2)
-
-    #resg = cv2.bitwise_and(imgray, imgray, mask= mask)
-
-
 
     # Bitwise-AND mask and original image
     res = cv2.bitwise_and(img_original,img_original, mask= mask)
@@ -84,20 +64,13 @@ def callback(data):
         if radius > 10:
             # calculate the center of the object (x, y coordinates)
             center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
-            # else:
-            #   center = (0,0)
-            #print(center)
             # draw the contour and center of the shape on the image
             res = cv2.circle(res,(int(center[0]),int(center[1])),int(radius),(0,255,0),2)
             img_original = cv2.circle(img_original,(int(center[0]),int(center[1])),int(radius),(0,255,0),2)
-            #cv2.putText(img_original, "center", (cX - 20, cY - 20),
-            #cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-            # center_str=('{},{},{}'.format(center[0],center[1],0))
             center_str = Vector3(center[0],center[1],0)
             image_pub=rospy.Publisher('center_position', Vector3, queue_size=10)
             #print center
             image_pub.publish(center_str)
-
 
 def main():
 
@@ -105,9 +78,6 @@ def main():
     global img_original
     global mask
     global res
-    #global frame
-    #global resg
-
     # In ROS, nodes are uniquely named. If two nodes with the same
     # name are launched, the previous one is kicked off. The
     # anonymous=True flag means that rospy will choose a unique
@@ -118,17 +88,9 @@ def main():
     rospy.Subscriber('/camera_driver/image_raw', Image, callback)
 
     while not rospy.is_shutdown():
-        # cv2.imshow('frame',img_original)
-        # cv2.imshow('mask',mask)
-        # cv2.imshow('res',res)
         cv2.imshow("Converted Image",np.hstack([img_original,res]))
-        #cv2.imshow('resg',resg)
         cv2.waitKey(5) & 0xFF
         rospy.sleep(0.05)
-
-    # spin() simply keeps python from exiting until this node is stopped
-    #rospy.spin()
-
 
 if __name__ == '__main__':
     main()
