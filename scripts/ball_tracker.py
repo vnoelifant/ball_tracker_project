@@ -16,9 +16,6 @@ bridge = CvBridge()
 img_original = np.zeros((480,640,3))
 mask = np.zeros((480,640,3))
 res = np.zeros((480,640,3))
-#frame = np.zeros((480,640,3))
-#resg = np.zeros((480,640,3))
-
 
 def callback(data):
 
