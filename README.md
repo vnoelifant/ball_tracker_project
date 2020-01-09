@@ -20,7 +20,7 @@ With the centroid information passed to this node, the servos can be controlled 
 
 #### Nodes
 ##### Ball Tracking Node
-[`camera_pak_node.py`](scripts/ball_tracker.py)
+[`ball_tracker.py`](scripts/ball_tracker.py)
 
 Subscribed Topic: `/camera_driver/image_raw`
 
